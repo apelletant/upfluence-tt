@@ -1,0 +1,43 @@
+linters-settings:
+  govet:
+    enable:
+      - fieldalignment # There might be some other disabled useful stuff in govet
+linters:
+  enable:
+  - dupl
+  - errcheck
+  - gochecknoglobals
+  - goconst
+  - godot
+  - gosimple
+  - govet
+  - ineffassign
+  - misspell
+  - nestif
+  - nlreturn
+  - prealloc
+  - predeclared
+  - promlinter
+  - revive
+  - staticcheck
+  - testpackage
+  - unconvert
+  - unparam
+  - unused
+  - whitespace
+  - wrapcheck
+  - wsl
+  disable-all: true
+issues:
+  exclude-rules:
+    - linters:
+        - revive
+      text: "package-comments:"
+    - linters:
+        - revive
+      text: "exported:"
+    - path: 'metrics\.go'
+      linters:
+        - gochecknoglobals
+run:
+  modules-download-mode: vendor
