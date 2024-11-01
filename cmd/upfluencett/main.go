@@ -26,13 +26,6 @@ func RunApp(ctx context.Context) {
 		Port: cfg.ServerPort,
 	}
 
-	server, err := server.New(scfg)
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
 	ccfg := &client.Config{
 		URL: cfg.URL,
 	}
@@ -44,9 +37,16 @@ func RunApp(ctx context.Context) {
 		return
 	}
 
+	server, err := server.New(scfg)
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
 	deps := &domain.Dependencies{
-		Server: server,
 		Client: client,
+		Server: server,
 	}
 
 	app, err := core.NewApp(deps)
@@ -55,6 +55,8 @@ func RunApp(ctx context.Context) {
 
 		return
 	}
+
+	server.AddApp(app)
 
 	if err := app.Run(ctx); err != nil {
 		log.Print(err)

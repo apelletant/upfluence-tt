@@ -33,5 +33,17 @@ type Server interface {
 }
 
 type Client interface {
-	Receive(ttr time.Duration) error
+	Receive(ttr time.Duration, msgChan chan *Message) error
+}
+
+type Message struct {
+	Data map[string]interface{}
+	Err  error
+}
+
+type Response struct {
+	TotalPosts int `json:"total_posts"`
+	MinTS      int `json:"minimum_timestamp"`
+	MxwTS      int `json:"maximum_timestamp"`
+	AvgLikes   int `json:"avg_likes"`
 }

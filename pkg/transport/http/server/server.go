@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/apelletant/upfluence-tt/pkg/core"
 	"github.com/apelletant/upfluence-tt/pkg/domain"
 	echo "github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -16,11 +18,13 @@ var _ domain.Server = (*Server)(nil)
 var (
 	ErrPortNotSet = errors.New("port should be set")
 	ErrServerNil  = errors.New("server cannot be nil")
+	ErrAppNil     = errors.New("app cannot be nil")
 )
 
 type Server struct {
 	cfg *Config
 	e   *echo.Echo
+	app *core.App
 }
 
 type Config struct {
@@ -51,6 +55,10 @@ func New(cfg *Config) (*Server, error) {
 	s.e.GET("/analysis", s.analysis)
 
 	return s, nil
+}
+
+func (s *Server) AddApp(app *core.App) {
+	s.app = app
 }
 
 func (s *Server) Run(ctx context.Context) error {
@@ -91,6 +99,21 @@ func (s *Server) handleDefault(ectx echo.Context) error {
 }
 
 func (s *Server) analysis(ectx echo.Context) error {
+	duration := ectx.QueryParam("duration")
+	dimension := ectx.QueryParam("dimension")
+
+	if duration == "" {
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing duration queryparam"))
+	}
+
+	if dimension == "" {
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing dimension queryparam"))
+	}
+
+	if err := s.app.RunQuery(dimension, duration); err != nil {
+		log.Print(err)
+	}
+
 	return ectx.JSON(s.buildResponse(http.StatusOK))
 }
 
@@ -103,5 +126,12 @@ func (s *Server) buildResponse(statusCode int) (int, *Response) {
 	return statusCode, &Response{
 		StatusCode: statusCode,
 		Message:    http.StatusText(statusCode),
+	}
+}
+
+func (s *Server) buildResponseWithMessage(statusCode int, message string) (int, *Response) {
+	return statusCode, &Response{
+		StatusCode: statusCode,
+		Message:    message,
 	}
 }
