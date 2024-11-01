@@ -33,5 +33,6 @@ func parseConfig() *Config {
 	flag.StringVar(&cfg.URL, "upfluence-url", "localhost:80", "url use to retreive data")
 	flag.IntVar(&cfg.ServerPort, "server-port", -1, "port use main server")
 
+	flag.Parse()
 	return cfg
 }

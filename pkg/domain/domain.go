@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 	"time"
 )
@@ -28,6 +29,7 @@ func (d *Dependencies) Validate() error {
 }
 
 type Server interface {
+	Run(ctx context.Context) error
 }
 
 type Client interface {

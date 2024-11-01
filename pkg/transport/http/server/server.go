@@ -19,8 +19,8 @@ var (
 )
 
 type Server struct {
-	port int
-	e    *echo.Echo
+	cfg *Config
+	e   *echo.Echo
 }
 
 type Config struct {
@@ -43,8 +43,8 @@ func New(cfg *Config) (*Server, error) {
 	e := echo.New()
 
 	s := &Server{
-		port: cfg.Port,
-		e:    e,
+		cfg: cfg,
+		e:   e,
 	}
 
 	s.e.GET("/", s.handleDefault)
@@ -57,7 +57,7 @@ func (s *Server) Run(ctx context.Context) error {
 	errG, errCtx := errgroup.WithContext(ctx)
 
 	errG.Go(func() error {
-		err := s.e.Start(fmt.Sprintf(":%d", s.port))
+		err := s.e.Start(fmt.Sprintf(":%d", s.cfg.Port))
 		if err != nil {
 			return fmt.Errorf("s.e.Run: %w", err)
 		}
@@ -68,12 +68,19 @@ func (s *Server) Run(ctx context.Context) error {
 	<-errCtx.Done()
 
 	if err := s.e.Close(); err != nil {
-		// TODO HAndle log
-		//clog.Logger.Error("s.e.Close", clog.Error(err))
+		return fmt.Errorf("s.e.close: %w", err)
 	}
 
 	if err := errG.Wait(); err != nil {
 		return fmt.Errorf("errG.Wait: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Server) Close() error {
+	if err := s.e.Close(); err != nil {
+		return fmt.Errorf("s.e.Close")
 	}
 
 	return nil

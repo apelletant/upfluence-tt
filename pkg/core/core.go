@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/apelletant/upfluence-tt/pkg/domain"
 )
@@ -23,5 +24,7 @@ func NewApp(deps *domain.Dependencies) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
+	a.deps.Client.Receive(30 * time.Second)
+	//a.deps.Server.Run(ctx)
 	return nil
 }
