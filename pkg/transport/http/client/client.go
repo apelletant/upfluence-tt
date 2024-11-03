@@ -116,10 +116,10 @@ func parseData(data string) (*domain.MsgData, error) {
 	for _, v := range obj {
 		if valueMap, ok := v.(map[string]interface{}); ok {
 			msgData := &domain.MsgData{
-				Likes:     toIntPointer(valueMap["likes"]),
-				Comments:  toIntPointer(valueMap["comments"]),
-				Favorites: toIntPointer(valueMap["favorites"]),
-				Retweets:  toIntPointer(valueMap["retweets"]),
+				Likes:     ToIntPointer(valueMap["likes"]),
+				Comments:  ToIntPointer(valueMap["comments"]),
+				Favorites: ToIntPointer(valueMap["favorites"]),
+				Retweets:  ToIntPointer(valueMap["retweets"]),
 			}
 
 			if ts, ok := valueMap["timestamp"].(float64); ok {
@@ -134,10 +134,14 @@ func parseData(data string) (*domain.MsgData, error) {
 	return nil, ErrRetreivingData
 }
 
-func toIntPointer(itp interface{}) *int {
+func ToIntPointer(itp interface{}) *int {
 	if v, ok := itp.(float64); ok {
 		res := int(v)
 		return &res
+	}
+
+	if v, ok := itp.(int); ok {
+		return &v
 	}
 
 	return nil
