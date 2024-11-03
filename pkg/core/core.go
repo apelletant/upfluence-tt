@@ -13,6 +13,21 @@ type App struct {
 	deps *domain.Dependencies
 }
 
+var (
+	storyKey          string = "story"
+	pinKey            string = "pin"
+	instagramMediaKey string = "instagram_media"
+	youtubeVideoKey   string = "youtube_video"
+	articleKey        string = "article"
+	tweetKey          string = "tweet"
+	facebookStatusKey string = "facebook_status"
+
+	likes     string = "likes"
+	retweets  string = "retweets"
+	comments  string = "comments"
+	favorites string = "favorites"
+)
+
 func NewApp(deps *domain.Dependencies) (*App, error) {
 	if err := deps.Validate(); err != nil {
 		return nil, fmt.Errorf("deps.validate")
@@ -29,20 +44,24 @@ func (a *App) Run(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) RunQuery(dimension string, duration string) error {
+func (a *App) RunQuery(dimension string, duration string) (map[string]int, error) {
+	log.Printf("Analyzing %s for %s\n", dimension, duration)
+
 	ttl, err := time.ParseDuration(duration)
 	if err != nil {
-		return fmt.Errorf("time.Parse: %w", err)
+		return nil, fmt.Errorf("time.Parse: %w", err)
 	}
 
 	msgChan := make(chan *domain.Message)
-	defer close(msgChan)
 
 	go func() {
+		defer close(msgChan)
 		a.deps.Client.Receive(ttl, msgChan)
+
+		return
 	}()
 
-	res := &domain.Response{}
+	res := make(map[string]int)
 
 	for msg := range msgChan {
 		if msg.Err != nil {
@@ -51,23 +70,46 @@ func (a *App) RunQuery(dimension string, duration string) error {
 			continue
 		}
 
-		/*
-		for _, v := range msg.Data {
-			//fmt.Println("key", k, "value", v)
-			switch v.(type) {
-			case domain.Instagram:
-				fmt.Println("instagram")
-			case domain.Tiktok:
-				fmt.Println("tiktok")
-			case domain.Twitch:
-				fmt.Println("twitch")
-			default:
-				fmt.Println("default")
+		if res["total_posts"] == 0 {
+			res["minimum_timestamp"] = msg.Data.Timestamp
+			res["maximum_timestamp"] = msg.Data.Timestamp
+		}
+
+		if msg.Data.Timestamp > res["maximum_timestamp"] {
+			res["maximum_timestamp"] = msg.Data.Timestamp
+		}
+
+		if msg.Data.Timestamp < res["minimum_timestamp"] {
+			res["minimum_timestamp"] = msg.Data.Timestamp
+		}
+
+		switch dimension {
+		case likes:
+			if msg.Data.Likes != nil {
+				res["avg_likes"] += *msg.Data.Likes
+				res["total_posts"]++
 			}
-*/
-			res.TotalPosts++
+		case retweets:
+			if msg.Data.Retweets != nil {
+				res["avg_retweets"] += *msg.Data.Retweets
+				res["total_posts"]++
+			}
+		case comments:
+			if msg.Data.Comments != nil {
+				res["avg_comments"] += *msg.Data.Comments
+				res["total_posts"]++
+			}
+		case favorites:
+			if msg.Data.Favorites != nil {
+				res["avg_favorites"] += *msg.Data.Favorites
+				res["total_posts"]++
+			}
+		default:
+			return ErrDimensionUnknown
 		}
 	}
 
-	return nil
+	res["avg_"+dimension] = res["avg_"+dimension] / res["total_posts"]
+
+	return res, nil
 }

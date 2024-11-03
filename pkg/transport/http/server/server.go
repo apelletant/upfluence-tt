@@ -2,9 +2,9 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/apelletant/upfluence-tt/pkg/core"
@@ -110,11 +110,20 @@ func (s *Server) analysis(ectx echo.Context) error {
 		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing dimension queryparam"))
 	}
 
-	if err := s.app.RunQuery(dimension, duration); err != nil {
-		log.Print(err)
+	result, err := s.app.RunQuery(dimension, duration)
+	if err != nil {
+		if errors.Is(err, domain.ErrDimensionUnknown) {
+			return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, err.Error()))
+		}
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error()))
 	}
 
-	return ectx.JSON(s.buildResponse(http.StatusOK))
+	b, err := json.Marshal(result)
+	if err != nil {
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error()))
+	}
+
+	return ectx.JSON(http.StatusOK, string(b))
 }
 
 type Response struct {

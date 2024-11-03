@@ -15,7 +15,8 @@ import (
 var _ domain.Client = (*Client)(nil)
 
 var (
-	ErrURLNotSet = errors.New("url cannot be emoty")
+	ErrURLNotSet      = errors.New("url cannot be emoty")
+	ErrRetreivingData = errors.New("while parsing input data")
 )
 
 type Client struct {
@@ -105,12 +106,39 @@ func (c *Client) extractMessage(rawMessage string) *domain.Message {
 	}
 }
 
-func (c *Client) parseData(data string) (map[string]interface{}, error) {
+func (c *Client) parseData(data string) (*domain.MsgData, error) {
 	var obj map[string]interface{}
 
 	if err := json.Unmarshal([]byte(data), &obj); err != nil {
 		return nil, fmt.Errorf("json.Unmarshal: %w", err)
 	}
 
-	return obj, nil
+	for _, v := range obj {
+		if valueMap, ok := v.(map[string]interface{}); ok {
+			msgData := &domain.MsgData{
+				Likes:     toIntPointer(valueMap["likes"]),
+				Comments:  toIntPointer(valueMap["comments"]),
+				Favorites: toIntPointer(valueMap["favorites"]),
+				Retweets:  toIntPointer(valueMap["retweets"]),
+			}
+
+			if ts, ok := valueMap["timestamp"].(float64); ok {
+				msgData.Timestamp = int(ts)
+			}
+
+			// should only have one item
+			return msgData, nil
+		}
+	}
+
+	return nil, ErrRetreivingData
+}
+
+func toIntPointer(itp interface{}) *int {
+	if v, ok := itp.(float64); ok {
+		res := int(v)
+		return &res
+	}
+
+	return nil
 }
