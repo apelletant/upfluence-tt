@@ -81,7 +81,7 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 			if scanner.Scan() {
 				line := scanner.Text()
 				if len(line) > 6 && line[:6] == "data: " {
-					msg := c.extractMessage(line[6:]) // removinfgg "data: "
+					msg := extractMessage(line[6:]) // removinfgg "data: "
 					msgChan <- msg
 				}
 			} else if err := scanner.Err(); err != nil {
@@ -91,8 +91,8 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 	}
 }
 
-func (c *Client) extractMessage(rawMessage string) *domain.Message {
-	msg, err := c.parseData(rawMessage)
+func extractMessage(rawMessage string) *domain.Message {
+	msg, err := parseData(rawMessage)
 	if err != nil {
 		return &domain.Message{
 			Data: nil,
@@ -106,7 +106,7 @@ func (c *Client) extractMessage(rawMessage string) *domain.Message {
 	}
 }
 
-func (c *Client) parseData(data string) (*domain.MsgData, error) {
+func parseData(data string) (*domain.MsgData, error) {
 	var obj map[string]interface{}
 
 	if err := json.Unmarshal([]byte(data), &obj); err != nil {
