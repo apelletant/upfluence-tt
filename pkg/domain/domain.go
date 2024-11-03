@@ -53,16 +53,16 @@ func (msg MsgData) String() string {
 	s := ""
 
 	if msg.Favorites != nil {
-		fmt.Sprintf("%s favorites: %d", s)
+		fmt.Sprintf("%s favorites: %d", s, *msg.Favorites)
 	}
 	if msg.Likes != nil {
-		fmt.Sprintf("%s likes: %d", s)
+		fmt.Sprintf("%s likes: %d", s, *msg.Likes)
 	}
 	if msg.Comments != nil {
-		fmt.Sprintf("%s comments: %d", s)
+		fmt.Sprintf("%s comments: %d", s, *msg.Comments)
 	}
 	if msg.Retweets != nil {
-		fmt.Sprintf("%s retweets: %d", s)
+		fmt.Sprintf("%s retweets: %d", s, *msg.Retweets)
 	}
 
 	return fmt.Sprintf("%s timestamp: %d", s, msg.Timestamp)

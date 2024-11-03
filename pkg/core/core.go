@@ -105,7 +105,7 @@ func (a *App) RunQuery(dimension string, duration string) (map[string]int, error
 				res["total_posts"]++
 			}
 		default:
-			return ErrDimensionUnknown
+			return nil, domain.ErrDimensionUnknown
 		}
 	}
 
