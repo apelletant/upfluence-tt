@@ -16,20 +16,20 @@ Project is develop using [hexagonal architecture](https://en.wikipedia.org/wiki/
 The API can analyze a lot of data, to prevent high usage of memory or use more memory than available nothing is stored in memory, only the results.
 
 The code base is divided in three main package:
-     - Core:
-        The core contains all the code related to the actual "work", it analyze data received and compute the expected result.
-     - Server
-        The server is the API of the project, it exposed one route "analyze", his job is to receive user request, pass the requiered data to the core, and return the analyzed data.
-     - Client
-        The client, is a "interface" to the upfluence stream. The client will listen to upfluence data stream fo a given amount of time (sent in the request) and send received data to the Core using channel.
+- Core:
+  The core contains all the code related to the actual "work", it analyze data received and compute the expected result.
+- Server:
+  The server is the API of the project, it exposed one route "analyze", his job is to receive user request, pass the requiered data to the core, and return the analyzed data.
+- Client:
+  The client, is a "interface" to the upfluence stream. The client will listen to upfluence data stream fo a given amount of time (sent in the request) and send received data to the Core using channel.
     
 ### How to use
 A Makefile is available a the root of the repository, multiple command are available:
-    - build (build the program)
-    - run (build and run the program)
-    - test (run unit tests)
-    - run-docker (and run-docker-linux, run the program on a docker container)
-    - build-docker ((and build-docker-linux) build the docker container)
+- build (build the program)
+- run (build and run the program)
+- test (run unit tests)
+- run-docker ((and run-docker-linux not tested) run the program on a docker container)
+- build-docker ((and build-docker-linux not tested) build the docker container)
 
 If you want to run the program manually and localy, simply run thoose commands:
 ```bash
@@ -78,10 +78,3 @@ More testing need to be done, currently only the serializing and computing are t
 I've decided to go for a "generic" way of serializing upfluence's data stream, using map[string]interface{} instead of defined type, this choice make the code a bit less clear but make it easier to add new input data type.
 
 The server does not store input data, everything is computed directly after receiving a message, which mean the memory consumption of the program is really little. If the user need to gather data for multiple weeks or months, storing every message means that the server would need a lot of memory, by not doing that and computing data every time we receive a message, only the strcutur containing the result is persistant over the course of the program.
-
-
-<style>
-    red {
-        color: red;
-    }
-</style>
