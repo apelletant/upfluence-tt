@@ -31,6 +31,16 @@ A Makefile is available a the root of the repository, multiple command are avail
     - run-docker (and run-docker-linux, run the program on a docker container)
     - build-docker ((and build-docker-linux) build the docker container)
 
+If you want to run the program manually and localy, simply run thoose commands:
+```bash
+$ go build ./cmd/upfluencett
+$ ./upfluencett -upfluence-url="<url of upfluence stream>" -server-port="<the wanted port for the server>"
+```
+Or
+```bash
+$ go run ./...  -upfluence-url="<url of upfluence stream>" -server-port="<the wanted port for the server>"
+```
+
 Only one request is available: "/analysis"
 The query take 2 <red>mandatory</red> parameters:
 1. Dimension
@@ -57,6 +67,17 @@ Here is an exemple of a response
 ```
 
 ### Going further
+What should happend if the input stream is stoped during analyzis. Currently I did not handle any scenario, but we could imagine implementing a retry system or an early response.
+
+I've devided to use pointer of int to serialize data from the stream, because in Go, int default value is 0, which mean even if the serialized value is not in the input, its value will be 0. The way I did my result calculation would have included thoose value in the result. 
+Instead of using int pointer, we could imagine implementing a decision maxtrix depending of the dimension needed, which mean we could define a data structure to serialize input, and use the decision matrix
+
+More testing need to be done, currently only the serializing and computing are tested, API response data and timing is not tested
+
+#### Trade off
+I've decided to go for a "generic" way of serializing upfluence's data stream, using map[string]interface{} instead of defined type, this choice make the code a bit less clear but make it easier to add new input data type.
+
+The server does not store input data, everything is computed directly after receiving a message, which mean the memory consumption of the program is really little. If the user need to gather data for multiple weeks or months, storing every message means that the server would need a lot of memory, by not doing that and computing data every time we receive a message, only the strcutur containing the result is persistant over the course of the program.
 
 
 <style>
