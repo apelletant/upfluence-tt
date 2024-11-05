@@ -59,9 +59,9 @@ The API while analyze "likes" for 5 seconds
 Here is an exemple of a response
 ```json
 {
-  "total_posts": 20
-  "minimum_timestamp": X,
-  "maximum_timestamp": Y,
+  "total_posts": 20,
+  "minimum_timestamp": 1440494430,
+  "maximum_timestamp": 1638774882,
   "avg_likes": 50
 }
 ```
