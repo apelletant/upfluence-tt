@@ -19,12 +19,12 @@ The code base is divided in three main package:
 - Core:
   The core contains all the code related to the actual "work", it analyze data received and compute the expected result.
 - Server:
-  The server is the API of the project, it exposed one route "analyze", his job is to receive user request, pass the requiered data to the core, and return the analyzed data.
+  The server is the API of the project, it exposed one route "analyze", his job is to receive user request, pass the required data to the core, and return the analyzed data.
 - Client:
-  The client, is a "interface" to the upfluence stream. The client will listen to upfluence data stream fo a given amount of time (sent in the request) and send received data to the Core using channel.
+  The client, is an "interface" to the upfluence stream. The client will listen to upfluence data stream for a given amount of time (sent in the request) and send received data to the Core using channels.
     
 ### How to use
-A Makefile is available a the root of the repository, multiple command are available:
+A Makefile is available a the root of the repository, multiple commands are available:
 - build (build the program)
 - run (build and run the program)
 - test (run unit tests)
@@ -42,7 +42,7 @@ $ go run ./...  -upfluence-url="<url of upfluence stream>" -server-port="<the wa
 ```
 
 Only one request is available: "/analysis"
-The query take 2 <red>mandatory</red> parameters:
+The query takes 2 <red>mandatory</red> parameters:
 1. Dimension
     The data to be analyzed. Multiple dimensions are available:
     - likes

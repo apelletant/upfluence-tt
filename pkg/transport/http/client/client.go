@@ -60,7 +60,7 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 		return fmt.Errorf("c.Do: %w", err)
 	}
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	timer := time.NewTimer(ttl)
 	defer timer.Stop()
