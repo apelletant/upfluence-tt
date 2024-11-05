@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -119,12 +118,7 @@ func (s *Server) analysis(ectx echo.Context) error {
 		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error())) //nolint:wrapcheck
 	}
 
-	b, err := json.Marshal(result)
-	if err != nil {
-		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error())) //nolint:wrapcheck
-	}
-
-	return ectx.JSON(http.StatusOK, string(b)) //nolint:wrapcheck
+	return ectx.JSON(http.StatusOK, result) //nolint:wrapcheck
 }
 
 type Response struct {
