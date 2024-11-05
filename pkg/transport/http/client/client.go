@@ -52,6 +52,7 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 	}
 
 	req.Header.Set("Accept", "text/event-stream")
+
 	client := &http.Client{}
 
 	res, err := client.Do(req)
@@ -81,7 +82,7 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 			if scanner.Scan() {
 				line := scanner.Text()
 				if len(line) > 6 && line[:6] == "data: " {
-					msg := extractMessage(line[6:]) // removinfgg "data: "
+					msg := ExtractMessage(line[6:]) // removinfgg "data: "
 					msgChan <- msg
 				}
 			} else if err := scanner.Err(); err != nil {
@@ -91,7 +92,7 @@ func (c *Client) Receive(ttl time.Duration, msgChan chan *domain.Message) error 
 	}
 }
 
-func extractMessage(rawMessage string) *domain.Message {
+func ExtractMessage(rawMessage string) *domain.Message {
 	msg, err := parseData(rawMessage)
 	if err != nil {
 		return &domain.Message{
@@ -116,10 +117,10 @@ func parseData(data string) (*domain.MsgData, error) {
 	for _, v := range obj {
 		if valueMap, ok := v.(map[string]interface{}); ok {
 			msgData := &domain.MsgData{
-				Likes:     ToIntPointer(valueMap["likes"]),
-				Comments:  ToIntPointer(valueMap["comments"]),
-				Favorites: ToIntPointer(valueMap["favorites"]),
-				Retweets:  ToIntPointer(valueMap["retweets"]),
+				Likes:     ToIntPointer(valueMap[domain.Likes]),
+				Comments:  ToIntPointer(valueMap[domain.Comments]),
+				Favorites: ToIntPointer(valueMap[domain.Favorites]),
+				Retweets:  ToIntPointer(valueMap[domain.Retweets]),
 			}
 
 			if ts, ok := valueMap["timestamp"].(float64); ok {
@@ -137,6 +138,7 @@ func parseData(data string) (*domain.MsgData, error) {
 func ToIntPointer(itp interface{}) *int {
 	if v, ok := itp.(float64); ok {
 		res := int(v)
+
 		return &res
 	}
 

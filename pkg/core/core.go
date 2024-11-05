@@ -13,21 +13,6 @@ type App struct {
 	deps *domain.Dependencies
 }
 
-var (
-	storyKey          string = "story"
-	pinKey            string = "pin"
-	instagramMediaKey string = "instagram_media"
-	youtubeVideoKey   string = "youtube_video"
-	articleKey        string = "article"
-	tweetKey          string = "tweet"
-	facebookStatusKey string = "facebook_status"
-
-	likes     string = "likes"
-	retweets  string = "retweets"
-	comments  string = "comments"
-	favorites string = "favorites"
-)
-
 func NewApp(deps *domain.Dependencies) (*App, error) {
 	if err := deps.Validate(); err != nil {
 		return nil, fmt.Errorf("deps.validate")
@@ -36,11 +21,15 @@ func NewApp(deps *domain.Dependencies) (*App, error) {
 	app := &App{
 		deps: deps,
 	}
+
 	return app, nil
 }
 
 func (a *App) Run(ctx context.Context) error {
-	a.deps.Server.Run(ctx)
+	if err := a.deps.Server.Run(ctx); err != nil {
+		return fmt.Errorf("a.deps.Server.Run: %w", err)
+	}
+
 	return nil
 }
 
@@ -56,9 +45,12 @@ func (a *App) RunQuery(dimension string, duration string) (map[string]int, error
 
 	go func() {
 		defer close(msgChan)
-		a.deps.Client.Receive(ttl, msgChan)
 
-		return
+		if err := a.deps.Client.Receive(ttl, msgChan); err != nil {
+			log.Print(err)
+
+			return
+		}
 	}()
 
 	res := make(map[string]int)
@@ -84,22 +76,22 @@ func (a *App) RunQuery(dimension string, duration string) (map[string]int, error
 		}
 
 		switch dimension {
-		case likes:
+		case domain.Likes:
 			if msg.Data.Likes != nil {
 				res["avg_likes"] += *msg.Data.Likes
 				res["total_posts"]++
 			}
-		case retweets:
+		case domain.Retweets:
 			if msg.Data.Retweets != nil {
 				res["avg_retweets"] += *msg.Data.Retweets
 				res["total_posts"]++
 			}
-		case comments:
+		case domain.Comments:
 			if msg.Data.Comments != nil {
 				res["avg_comments"] += *msg.Data.Comments
 				res["total_posts"]++
 			}
-		case favorites:
+		case domain.Favorites:
 			if msg.Data.Favorites != nil {
 				res["avg_favorites"] += *msg.Data.Favorites
 				res["total_posts"]++

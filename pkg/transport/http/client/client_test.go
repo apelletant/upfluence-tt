@@ -1,13 +1,14 @@
-package client
+package client_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/apelletant/upfluence-tt/pkg/domain"
+	"github.com/apelletant/upfluence-tt/pkg/transport/http/client"
 )
 
-type Case struct {
+type Case struct { //nolint:govet
 	label          string
 	input          string
 	expectedOutput *domain.Message
@@ -31,10 +32,10 @@ func TestParseData(t *testing.T) {
     	}`,
 			expectedOutput: &domain.Message{
 				Data: &domain.MsgData{
-					Favorites: ToIntPointer(102),
-					Retweets:  ToIntPointer(34),
+					Favorites: client.ToIntPointer(102),
+					Retweets:  client.ToIntPointer(34),
 					Timestamp: 1722386416,
-					Comments:  ToIntPointer(5),
+					Comments:  client.ToIntPointer(5),
 				},
 				Err: nil,
 			},
@@ -58,8 +59,8 @@ func TestParseData(t *testing.T) {
 			expectedOutput: &domain.Message{
 				Data: &domain.MsgData{
 					Timestamp: 1728510897,
-					Comments:  ToIntPointer(0),
-					Likes:     ToIntPointer(175),
+					Comments:  client.ToIntPointer(0),
+					Likes:     client.ToIntPointer(175),
 				},
 				Err: nil,
 			},
@@ -83,8 +84,8 @@ func TestParseData(t *testing.T) {
 			expectedOutput: &domain.Message{
 				Data: &domain.MsgData{
 					Timestamp: 1723152324,
-					Comments:  ToIntPointer(198),
-					Likes:     ToIntPointer(234),
+					Comments:  client.ToIntPointer(198),
+					Likes:     client.ToIntPointer(234),
 				},
 				Err: nil,
 			},
@@ -127,8 +128,8 @@ func TestParseData(t *testing.T) {
 			expectedOutput: &domain.Message{
 				Data: &domain.MsgData{
 					Timestamp: 1717451821,
-					Comments:  ToIntPointer(1),
-					Likes:     ToIntPointer(42),
+					Comments:  client.ToIntPointer(1),
+					Likes:     client.ToIntPointer(42),
 				},
 				Err: nil,
 			},
@@ -156,8 +157,8 @@ func TestParseData(t *testing.T) {
 			expectedOutput: &domain.Message{
 				Data: &domain.MsgData{
 					Timestamp: 1664749733,
-					Comments:  ToIntPointer(1),
-					Likes:     ToIntPointer(23),
+					Comments:  client.ToIntPointer(1),
+					Likes:     client.ToIntPointer(23),
 				},
 				Err: nil,
 			},
@@ -165,7 +166,8 @@ func TestParseData(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		res := extractMessage(tc.input)
+		res := client.ExtractMessage(tc.input)
+
 		if ok := matchMsg(tc.expectedOutput, res); !ok {
 			t.Fail()
 		}
@@ -185,26 +187,31 @@ func matchMsg(expected, input *domain.Message) bool {
 func matchData(expected, input *domain.MsgData) bool {
 	if expected.Likes != nil && *expected.Likes != *input.Likes {
 		fmt.Printf("expected like = %d got %d\n", *expected.Likes, *input.Likes)
+
 		return false
 	}
 
 	if expected.Retweets != nil && *expected.Retweets != *input.Retweets {
 		fmt.Printf("expected retweets = %d got %d\n", *expected.Retweets, *input.Retweets)
+
 		return false
 	}
 
 	if expected.Comments != nil && *expected.Comments != *input.Comments {
 		fmt.Printf("expected like = %d got %d\n", *expected.Likes, *input.Likes)
+
 		return false
 	}
 
 	if expected.Favorites != nil && *expected.Favorites != *input.Favorites {
 		fmt.Printf("expected like = %d got %d\n", *expected.Likes, *input.Likes)
+
 		return false
 	}
 
 	if expected.Timestamp != input.Timestamp {
 		fmt.Printf("expected like = %d got %d\n", expected.Timestamp, input.Timestamp)
+
 		return false
 	}
 

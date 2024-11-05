@@ -22,5 +22,6 @@ func (cm *ClientMock) Receive(_ time.Duration, msgChan chan *domain.Message) err
 	for _, msg := range cm.msgs {
 		msgChan <- msg
 	}
+
 	return nil
 }

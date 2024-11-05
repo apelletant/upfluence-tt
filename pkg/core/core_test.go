@@ -1,17 +1,18 @@
-package core
+//nolint:dupl
+package core_test
 
 import (
-	"fmt"
 	"maps"
 	"testing"
 
+	"github.com/apelletant/upfluence-tt/pkg/core"
 	"github.com/apelletant/upfluence-tt/pkg/domain"
 	"github.com/apelletant/upfluence-tt/pkg/transport/http/client"
 	"github.com/apelletant/upfluence-tt/pkg/transport/http/clientmock"
 	"github.com/apelletant/upfluence-tt/pkg/transport/http/servermock"
 )
 
-type Case struct {
+type Case struct { //nolint:govet
 	label           string
 	msgs            []*domain.Message
 	expectedOuput   map[string]int
@@ -240,7 +241,7 @@ func TestRunQuery(t *testing.T) {
 			Server: server,
 		}
 
-		app, _ := NewApp(appDeps)
+		app, _ := core.NewApp(appDeps)
 
 		// hard coded duration 'cause not tested and no incidence on the test resutl
 		res, err := app.RunQuery(tc.wantedDimension, "10s")
@@ -248,8 +249,6 @@ func TestRunQuery(t *testing.T) {
 			t.Fatal("error while running query", err)
 		}
 
-		fmt.Println(res)
-		fmt.Println(tc.expectedOuput)
 		if ok := maps.Equal(tc.expectedOuput, res); !ok {
 			t.Fail()
 		}

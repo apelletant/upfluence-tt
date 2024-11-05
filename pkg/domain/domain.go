@@ -87,3 +87,11 @@ type Response struct {
 	AvgFavorites int `json:"avg_favorites,omitempty"`
 	AvgRetweets  int `json:"avg_retweets,omitempty"`
 }
+
+//nolint:gochecknoglobals
+const (
+	Likes     = "likes"
+	Retweets  = "retweets"
+	Comments  = "comments"
+	Favorites = "favorites"
+)

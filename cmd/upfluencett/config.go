@@ -30,9 +30,10 @@ func (cfg Config) validate() error {
 func parseConfig() *Config {
 	cfg := &Config{}
 
-	flag.StringVar(&cfg.URL, "upfluence-url", "localhost:80", "url use to retreive data")
+	flag.StringVar(&cfg.URL, "upfluence-url", "localhost:80", "url use to retrieve data")
 	flag.IntVar(&cfg.ServerPort, "server-port", -1, "port use main server")
 
 	flag.Parse()
+
 	return cfg
 }

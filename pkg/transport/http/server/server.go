@@ -95,7 +95,7 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) handleDefault(ectx echo.Context) error {
-	return ectx.JSON(s.buildResponse(http.StatusNotFound))
+	return ectx.JSON(s.buildResponse(http.StatusNotFound)) //nolint:wrapcheck
 }
 
 func (s *Server) analysis(ectx echo.Context) error {
@@ -103,27 +103,28 @@ func (s *Server) analysis(ectx echo.Context) error {
 	dimension := ectx.QueryParam("dimension")
 
 	if duration == "" {
-		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing duration queryparam"))
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing duration queryparam")) //nolint:wrapcheck
 	}
 
 	if dimension == "" {
-		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing dimension queryparam"))
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, "missing dimension queryparam")) //nolint:wrapcheck
 	}
 
 	result, err := s.app.RunQuery(dimension, duration)
 	if err != nil {
 		if errors.Is(err, domain.ErrDimensionUnknown) {
-			return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, err.Error()))
+			return ectx.JSON(s.buildResponseWithMessage(http.StatusBadRequest, err.Error())) //nolint:wrapcheck
 		}
-		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error()))
+
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error())) //nolint:wrapcheck
 	}
 
 	b, err := json.Marshal(result)
 	if err != nil {
-		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error()))
+		return ectx.JSON(s.buildResponseWithMessage(http.StatusInternalServerError, err.Error())) //nolint:wrapcheck
 	}
 
-	return ectx.JSON(http.StatusOK, string(b))
+	return ectx.JSON(http.StatusOK, string(b)) //nolint:wrapcheck
 }
 
 type Response struct {
